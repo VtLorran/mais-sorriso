@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("CLIENTE") // "ADMIN" or "CLIENTE"
+  createdAt DateTime @default(now())
+
+  dentistAppointments Appointment[] @relation("DentistAppointments")
+}
+
+
+model Patient {
+  id        String   @id @default(uuid())
+  name      String
+  age       Int
+  phone     String
+  createdAt DateTime @default(now())
+
+  appointments Appointment[]
+  dentalRecords DentalRecord[]
+}
+
+model Appointment {
+  id        String   @id @default(uuid())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  patientId String
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  dentist   User?    @relation("DentistAppointments", fields: [dentistId], references: [id])
+  dentistId String?
+}
+
+
+model DentalRecord {
+  id          String   @id @default(uuid())
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  patientId   String
+  toothNumber Int
+  description String
+  createdAt   DateTime @default(now())
+}

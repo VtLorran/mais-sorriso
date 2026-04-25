@@ -1,36 +1,165 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🦷 +Sorriso — OdontoTech SaaS
 
-## Getting Started
+> Transformando a gestão odontológica com tecnologia, organização e inteligência visual.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Sobre o Projeto
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O **+Sorriso** é um sistema SaaS moderno desenvolvido para clínicas odontológicas que desejam substituir processos manuais e desorganizados por uma solução digital eficiente, intuitiva e profissional.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+A proposta do sistema é centralizar **pacientes, agendamentos e prontuários odontológicos** em um único ambiente, com foco em produtividade, clareza e experiência do usuário.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🎯 Problema
 
-To learn more about Next.js, take a look at the following resources:
+Clínicas odontológicas frequentemente enfrentam:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* Desorganização com fichas e papéis
+* Falhas em agendamentos
+* Dificuldade em acompanhar histórico clínico
+* Falta de padronização nos diagnósticos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 💡 Solução
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O **+Sorriso** resolve isso através de um sistema que oferece:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* Gestão completa de pacientes
+* Agenda digital inteligente
+* Prontuário odontológico visual
+* Registro detalhado por dente
+* Histórico clínico organizado
+
+---
+
+## 🔥 Diferencial Principal
+
+### 🦷 Arcada Dentária Interativa
+
+O coração do sistema.
+
+* Visualização completa dos 32 dentes
+* Registro individual por dente
+* Histórico clínico visual
+* Diagnóstico mais rápido e preciso
+
+👉 Isso transforma completamente a forma como o dentista trabalha.
+
+---
+
+## 🧱 Funcionalidades do MVP
+
+### 👨‍⚕️ Área Administrativa (Clínica)
+
+* Cadastro de pacientes
+* Listagem e gerenciamento de pacientes
+* Agendamento de consultas
+* Visualização da agenda
+* Prontuário odontológico
+* Registro de problemas por dente
+* Histórico de atendimentos
+* Registro de vacinas
+
+---
+
+### 👤 Área do Paciente
+
+* Visualização de dados pessoais
+* Histórico de consultas
+* Acompanhamento de atendimentos
+* Solicitação de agendamento
+
+---
+
+## 🤖 Diferencial Futuro do Produto
+
+O +Sorriso evoluirá para incluir:
+
+* Agendamento via chat com IA
+* Pré-diagnóstico automático
+* Geração de relatórios inteligentes
+* Sugestões de tratamento
+* Automação completa da clínica
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+### Frontend
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+
+### Backend
+
+* API Routes (Next.js)
+* Prisma ORM
+
+### Banco de Dados
+
+* PostgreSQL (via Supabase)
+
+---
+
+## 🧩 Arquitetura
+
+O sistema segue uma estrutura moderna baseada em:
+
+* Componentização (React)
+* Separação de responsabilidades
+* API interna (Next.js)
+* ORM para abstração do banco
+
+---
+
+## 🎨 Design
+
+O sistema segue princípios de design moderno:
+
+* Interface limpa e minimalista
+* Cores voltadas à área da saúde
+* Alta legibilidade
+* Experiência fluida
+
+---
+
+## 📈 Objetivo
+
+Criar uma solução escalável que:
+
+* Aumente a produtividade das clínicas
+* Melhore a experiência do paciente
+* Digitalize completamente o fluxo odontológico
+
+---
+
+## 🧠 Visão
+
+Ser referência em tecnologia odontológica, integrando:
+
+* Gestão
+* Diagnóstico
+* Inteligência artificial
+
+---
+
+## 📌 Status
+
+🚧 MVP em desenvolvimento
+
+---
+
+## 🤝 Contribuição
+
+Este projeto está em fase inicial. Sugestões, melhorias e ideias são bem-vindas.
+
+---
+
+## 🦷 +Sorriso
+
+**Tecnologia que organiza, simplifica e transforma a odontologia.**
