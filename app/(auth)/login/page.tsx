@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { PlusCircle, Mail, Lock, Loader2, ArrowRight } from "lucide-react";
+import { PlusCircle, CreditCard, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { cpf as cpfValidator } from "cpf-cnpj-validator";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [cpf, setCpf] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -14,18 +14,24 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (!cpfValidator.isValid(cpf)) {
+      setError("CPF inserido é inválido.");
+      setLoading(false);
+      return;
+    }
     
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ cpf }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        window.location.href = data.role === "ADMIN" ? "/" : "/welcome";
+        window.location.href = data.role === "ADMIN" ? "/" : "/client/appointments";
       } else {
         setError(data.error || "Erro ao fazer login");
       }
@@ -36,6 +42,15 @@ export default function LoginPage() {
     }
   };
 
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 11) val = val.slice(0, 11);
+    val = val.replace(/(\d{3})(\d)/, "$1.$2");
+    val = val.replace(/(\d{3})(\d)/, "$1.$2");
+    val = val.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    setCpf(val);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-white">
       <div className="w-full max-w-md bg-white rounded-[3rem] shadow-premium p-10 border border-slate-100">
@@ -43,8 +58,8 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-100 mb-4">
             <PlusCircle className="text-white w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">+Sorriso Admin</h1>
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Plataforma Dental Premium</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">+Sorriso</h1>
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Acesso Rápido</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -55,33 +70,19 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">E-mail</label>
+            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">CPF</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+              <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
               <input 
                 required
-                type="email" 
-                placeholder="exemplo@email.com"
+                type="text" 
+                placeholder="000.000.000-00"
                 className="w-full pl-12 pr-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-8 focus:ring-blue-50 transition-all outline-none font-bold text-slate-600"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={cpf}
+                onChange={handleCpfChange}
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Senha</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-              <input 
-                required
-                type="password" 
-                placeholder="••••••••"
-                className="w-full pl-12 pr-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-8 focus:ring-blue-50 transition-all outline-none font-bold text-slate-600"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+            <p className="text-[10px] font-bold text-slate-400 ml-2 mt-1">Apenas números são necessários.</p>
           </div>
 
           <button 

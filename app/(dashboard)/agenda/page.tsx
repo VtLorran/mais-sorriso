@@ -104,7 +104,7 @@ export default function AgendaPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientId: formData.patientId,
-          dentistId: formData.dentistId || null,
+          dentistId: formData.dentistId || undefined,
           date: fullDate.toISOString(),
         }),
       });

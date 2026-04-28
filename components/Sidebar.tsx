@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { 
   LayoutDashboard, 
   Users, 
   Calendar, 
   Stethoscope, 
   Settings,
-  X
+  X,
+  FileText
 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 
-const links = [
+const adminLinks = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Pacientes", href: "/patients", icon: Users },
   { name: "Agenda", href: "/agenda", icon: Calendar },
@@ -21,10 +23,28 @@ const links = [
   { name: "Acessos", href: "/users", icon: Users },
 ];
 
+const clientLinks = [
+  { name: "Minhas Consultas", href: "/client/appointments", icon: Calendar },
+  { name: "Meus Documentos", href: "/client/documents", icon: FileText },
+  { name: "Meu Prontuário", href: "/client/records", icon: Stethoscope },
+];
+
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { isOpen, close } = useSidebar();
+  const [role, setRole] = useState("ADMIN");
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.role) setRole(data.role);
+      })
+      .catch(() => {});
+  }, []);
+
+  const linksToMap = role === "CLIENTE" ? clientLinks : adminLinks;
 
   return (
     <>
@@ -43,7 +63,7 @@ export default function Sidebar() {
           <div className="flex flex-col items-center gap-2">
             <div className="w-full flex justify-between items-center md:justify-center">
               <Image 
-                src="/Sorriso.png" 
+                src="/maisSorriso.png" 
                 alt="+Sorriso Logo" 
                 width={160}
                 height={160}
@@ -61,7 +81,7 @@ export default function Sidebar() {
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-1">
-          {links.map((link) => {
+          {linksToMap.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
             

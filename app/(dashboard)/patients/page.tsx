@@ -8,9 +8,13 @@ import Modal from "@/components/Modal";
 interface Patient {
   id: string;
   name: string;
-  age: number;
+  dateOfBirth: string;
   phone: string;
   createdAt: string;
+  user?: {
+    cpf: string;
+    email: string | null;
+  };
 }
 
 export default function PatientsPage() {
@@ -22,8 +26,10 @@ export default function PatientsPage() {
 
   const [formData, setFormData] = useState({
     name: "",
-    age: "",
+    cpf: "",
+    dateOfBirth: "",
     phone: "",
+    email: "",
   });
 
   const fetchPatients = async () => {
@@ -45,10 +51,18 @@ export default function PatientsPage() {
 
   const handleEdit = (patient: Patient) => {
     setEditingPatientId(patient.id);
+
+    let formattedCpf = patient.user?.cpf || "";
+    if (formattedCpf) {
+      formattedCpf = formattedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    }
+
     setFormData({
       name: patient.name,
-      age: patient.age.toString(),
+      cpf: formattedCpf,
+      dateOfBirth: patient.dateOfBirth ? new Date(patient.dateOfBirth).toISOString().split('T')[0] : "",
       phone: patient.phone,
+      email: patient.user?.email || "",
     });
     setIsModalOpen(true);
   };
@@ -79,7 +93,7 @@ export default function PatientsPage() {
       if (res.ok) {
         setIsModalOpen(false);
         setEditingPatientId(null);
-        setFormData({ name: "", age: "", phone: "" });
+        setFormData({ name: "", cpf: "", dateOfBirth: "", phone: "", email: "" });
         fetchPatients();
       }
     } catch (error) {
@@ -99,7 +113,7 @@ export default function PatientsPage() {
         <button 
           onClick={() => {
             setEditingPatientId(null);
-            setFormData({ name: "", age: "", phone: "" });
+            setFormData({ name: "", cpf: "", dateOfBirth: "", phone: "", email: "" });
             setIsModalOpen(true);
           }}
           className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-[1.5rem] font-black flex items-center gap-3 transition-all shadow-xl shadow-blue-100 hover:scale-105 active:scale-95"
@@ -130,7 +144,7 @@ export default function PatientsPage() {
               <tr>
                 <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Iniciais</th>
                 <th className="px-4 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paciente</th>
-                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Idade</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Data ou Nasc.</th>
                 <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Telefone</th>
                 <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Ações</th>
               </tr>
@@ -169,7 +183,7 @@ export default function PatientsPage() {
                     </td>
                     <td className="bg-white group-hover:bg-slate-50 py-5 px-8 text-center transition-all">
                       <span className="px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-black">
-                        {patient.age} anos
+                        {patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : 'N/A'}
                       </span>
                     </td>
                     <td className="bg-white group-hover:bg-slate-50 py-5 px-8 transition-all">
@@ -224,14 +238,45 @@ export default function PatientsPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Idade</label>
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">CPF</label>
               <input 
                 required
-                type="number" 
+                type="text" 
                 className="w-full px-5 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-8 focus:ring-blue-50 transition-all outline-none font-bold text-slate-600"
-                placeholder="Ex: 30"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                placeholder="000.000.000-00"
+                value={formData.cpf}
+                onChange={(e) => {
+                  let val = e.target.value.replace(/\D/g, "");
+                  if (val.length > 11) val = val.slice(0, 11);
+                  val = val.replace(/(\d{3})(\d)/, "$1.$2");
+                  val = val.replace(/(\d{3})(\d)/, "$1.$2");
+                  val = val.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                  setFormData({ ...formData, cpf: val });
+                }}
+                disabled={!!editingPatientId} // Can't easily edit CPF without extra logic
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">E-mail (opcional)</label>
+              <input 
+                type="email" 
+                className="w-full px-5 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-8 focus:ring-blue-50 transition-all outline-none font-bold text-slate-600"
+                placeholder="exemplo@email.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                disabled={!!editingPatientId}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Data de Nasc.</label>
+              <input 
+                required
+                type="date" 
+                className="w-full px-5 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-8 focus:ring-blue-50 transition-all outline-none font-bold text-slate-600"
+                value={formData.dateOfBirth}
+                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -242,7 +287,13 @@ export default function PatientsPage() {
                 className="w-full px-5 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-8 focus:ring-blue-50 transition-all outline-none font-bold text-slate-600"
                 placeholder="(00) 00000-0000"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => {
+                  let val = e.target.value.replace(/\D/g, "");
+                  if (val.length > 11) val = val.slice(0, 11);
+                  val = val.replace(/^(\d{2})(\d)/g, "($1) $2");
+                  val = val.replace(/(\d)(\d{4})$/, "$1-$2");
+                  setFormData({ ...formData, phone: val });
+                }}
               />
             </div>
           </div>

@@ -12,6 +12,7 @@ import {
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Appointment {
   id: string;
@@ -32,6 +33,7 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     // Fetch stats
@@ -44,6 +46,10 @@ export default function Dashboard() {
     fetch("/api/auth/me")
       .then(res => res.json())
       .then(userData => {
+        if (userData.role === "CLIENTE") {
+          router.push("/client/appointments");
+          return;
+        }
         if (userData.name) setUserName(userData.name);
       });
   }, []);
