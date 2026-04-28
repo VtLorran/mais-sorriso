@@ -3,14 +3,15 @@ import prisma from "@/lib/prisma";
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const body = await request.json();
     const { name, age, phone } = body;
 
     const patient = await prisma.patient.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         age: age ? parseInt(age.toString()) : undefined,
@@ -27,11 +28,12 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     await prisma.patient.delete({
-      where: { id: params.id },
+      where: { id },
     });
     return NextResponse.json({ message: "Patient deleted" });
   } catch (error) {
