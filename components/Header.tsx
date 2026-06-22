@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, User, LogOut, Menu } from "lucide-react";
+import { Bell, Search, User, LogOut, Menu, CheckCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSidebar } from "./SidebarContext";
@@ -10,7 +10,19 @@ export default function Header() {
   const [userRole, setUserRole] = useState("...");
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { toggle } = useSidebar();
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      const data = await res.json();
+      setNotifications(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -24,6 +36,9 @@ export default function Header() {
             void fetch("/api/admin/requests")
               .then(res => res.json())
               .then(reqs => setPendingCount(Array.isArray(reqs) ? reqs.length : 0));
+          } else if (data.role === "CLIENTE") {
+            setIsAdmin(false);
+            fetchNotifications();
           }
         }
       })
@@ -32,6 +47,45 @@ export default function Header() {
         setUserRole("Convidado");
       });
   }, []);
+
+  useEffect(() => {
+    if (!isDropdownOpen) return;
+    const handleOutsideClick = () => setIsDropdownOpen(false);
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
+  }, [isDropdownOpen]);
+
+  const markAsRead = async (id: string) => {
+    try {
+      const res = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setNotifications(prev =>
+          prev.map(n => (n.id === id ? { ...n, read: true } : n))
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const res = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -62,13 +116,83 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-6 ml-4">
-        {isAdmin && (
+        {isAdmin ? (
           <Link href="/requests" className="hidden sm:flex p-3 rounded-2xl hover:bg-slate-50 transition-all relative group bg-white shadow-sm border border-slate-100">
             <Bell className="w-5 h-5 text-slate-500 group-hover:text-blue-600" />
             {pendingCount > 0 && (
               <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-white animate-pulse"></span>
             )}
           </Link>
+        ) : (
+          userName !== "..." && userName !== "Acesso" && (
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex p-3 rounded-2xl hover:bg-slate-50 transition-all relative group bg-white shadow-sm border border-slate-100 cursor-pointer"
+              >
+                <Bell className="w-5 h-5 text-slate-500 group-hover:text-blue-600" />
+                {notifications.filter((n) => !n.read).length > 0 && (
+                  <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-white animate-pulse"></span>
+                )}
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl border border-slate-100 shadow-2xl z-50 overflow-hidden transform origin-top-right transition-all animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider">Notificações</span>
+                    {notifications.filter((n) => !n.read).length > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-[10px] font-black text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-tight flex items-center gap-1 cursor-pointer"
+                      >
+                        <CheckCheck className="w-4 h-4" />
+                        Lidas
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-50 custom-scrollbar">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-slate-400">
+                        <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                        <p className="text-xs font-bold">Nenhuma notificação</p>
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          onClick={() => {
+                            if (!notif.read) markAsRead(notif.id);
+                          }}
+                          className={`p-4 transition-all cursor-pointer flex flex-col gap-1.5 text-left ${
+                            notif.read ? "bg-white hover:bg-slate-50/50" : "bg-blue-50/20 hover:bg-blue-50/40"
+                          }`}
+                        >
+                          <p className={`text-xs leading-relaxed ${notif.read ? "text-slate-500 font-medium" : "text-slate-800 font-bold"}`}>
+                            {notif.message}
+                          </p>
+                          <div className="flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase">
+                            <span>{new Date(notif.createdAt).toLocaleDateString()}</span>
+                            {!notif.read && (
+                              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="p-4 border-t border-slate-50 bg-slate-50/10 text-center">
+                    <Link
+                      href="/client/budgets"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="text-[10px] font-black text-slate-500 hover:text-blue-600 transition-colors uppercase tracking-widest block"
+                    >
+                      Ver Meus Orçamentos
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
         )}
 
         <div className="hidden sm:block h-8 w-px bg-slate-200"></div>

@@ -20,12 +20,14 @@ const adminLinks = [
   { name: "Pacientes", href: "/patients", icon: Users },
   { name: "Agenda", href: "/agenda", icon: Calendar },
   { name: "Prontuário", href: "/prontuario", icon: Stethoscope },
+  { name: "Orçamentos", href: "/budgets", icon: FileText },
   { name: "Acessos", href: "/users", icon: Users },
 ];
 
 const clientLinks = [
   { name: "Minhas Consultas", href: "/client/appointments", icon: Calendar },
   { name: "Meus Documentos", href: "/client/documents", icon: FileText },
+  { name: "Meus Orçamentos", href: "/client/budgets", icon: FileText },
   { name: "Meu Prontuário", href: "/client/records", icon: Stethoscope },
 ];
 

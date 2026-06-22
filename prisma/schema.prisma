@@ -20,6 +20,7 @@ model User {
 
   patient             Patient?      @relation("UserPatient")
   dentistAppointments Appointment[] @relation("DentistAppointments")
+  notifications       Notification[]
 }
 
 model RegistrationRequest {
@@ -46,6 +47,7 @@ model Patient {
   appointments Appointment[]
   dentalRecords DentalRecord[]
   documents PatientDocument[]
+  budgets   Budget[]
 }
 
 model Appointment {
@@ -76,4 +78,22 @@ model PatientDocument {
   type      String
   data      String   // Base64 encoded file data
   createdAt DateTime @default(now())
+}
+
+model Budget {
+  id          String   @id @default(uuid())
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId   String
+  description String
+  value       Float
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
 }
